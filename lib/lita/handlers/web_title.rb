@@ -21,12 +21,17 @@ module Lita
           end
         end
         result = parse_uri(requestUri)
-        request.reply(result.delete("\n").strip) unless result.nil?
+        request.reply(
+          render_template("web_title",
+            :title => result.delete("\n").strip,
+            :link => requestUri
+          )
+        )
       end
 
       def parse_uri(uriString)
         httpRequest = http.get(uriString)
-        if httpRequest.status == 200 then
+        if httpRequest.status == 200
           return unless httpRequest.headers['Content-Type'] =~ %r{text/x?html}
           find_title(httpRequest.body)
         elsif [300, 301, 302, 303].include? httpRequest.status then
